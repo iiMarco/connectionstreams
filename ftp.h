@@ -1,23 +1,19 @@
+/*
+ * Author   : Mark Zammit
+ * Contact  : iimarco@me.com
+ * Version  : 1.13.11.21
+ */
+
 #ifndef _FTP_H_
 #define _FTP_H_
 
-/*
-Coder	: Tokivena -- Elie Louis
-Contact : elie_louis@hotmail.com
-*/
+/* Checks that Microsoft Visual C++ compiler is in use
+ * otherwise this will not compile */
+#if !defined(_MSC_VER)
+#error ftp.h only supported by MSVC Compiler 2005+
+#endif
 
-/*
-Contributor : Mark Zammit
-Contact     : markzammit@me.com
-Changes     :
-    Implemented disconnect() for heap allocation as original was designed for short scope
-    Implemented getfilesize() fully so that it returns a file size as a QuadPart
-    Implemented command()
-    Added unicode support
-    Added comments to header with full method descriptions
-    Fixed some potential runtime crashes by adding connection checks to all methods
-        as well as adding connection check on disconnect for heap based variations
-*/
+#if defined(_MSC_VER)
 
 #include <Windows.h>
 #include <WinInet.h>
@@ -31,119 +27,153 @@ Changes     :
 
 class FTP : public connstream
 {
-	public:
-	    /** Creates an internet connection and sets up local variables */
-		FTP(void);
-		/** Disconnects session on scope end if not already disconnected */
-		virtual ~FTP(void);
+    public:
+        /** Creates an internet connection and sets up local variables */
+        FTP(void);
+        /** Disconnects session on scope end if not already disconnected */
+        virtual ~FTP(void);
 
-		/// CONNECTION METHODS ///
-		/** bool connect(TSTR, TSTR, TSTR)
-		 *  Connects to FTP server.
-		 *      @lpszServerName : Fully qualified domain name or IP Address
-		 *      @lpszUser       : User id
-		 *      @lpszPassword   : User password
-		 *  Returns : @true on connect of @false on failure
-		 */
-		 /** bool disconect(void)
-		 *  Disconnects from active FTP server.
-		 *
-		 *  Returns : @true on successful disconnect or @false if already disconnected
-		 */
-		bool connect(TSTR lpszServerName,
+        /// CONNECTION METHODS ///
+        /** bool connect(TSTR, TSTR, TSTR)
+         *  Connects to FTP server.
+         *      @lpszServerName : Fully qualified domain name or IP Address
+         *      @lpszUser       : User id
+         *      @lpszPassword   : User password
+         *  Returns : @true on connect of @false on failure
+         */
+        /** bool disconect(void)
+         *  Disconnects from active FTP server.
+         *
+         *  Returns : @true on successful disconnect or @false if already disconnected
+         */
+        bool Connect(TSTR lpszServerName,
                      TSTR lpszUser,
                      TSTR lpszPassword,
                      int port = INTERNET_DEFAULT_FTP_PORT);
-		bool disconnect(void);
+        bool Disconnect(void);
 
-		/// GET/PUSH METHODS ///
-		/** Uploads a file from client location to server location.
-		 *      @lpszLocation   : Client relative file location
-		 *      @lpszRemFile    : File name to be saved on server, leave blank for original name
-		 *  Returns : @true on successful upload or @false on failed upload, could be
-		 *              because file already exists on server or because there is no active connection.
-		 */
-		 /** Downloads a file from server location to client location.
-		 *      @lpszLocation    : Server relative file loaction
-		 *      @lpszRemName     : File name to be saved on client, leave blank for original name
-		 *  Returns : @true on successful upload or @false on failed upload, could be
-		 *              because file already exists on client or because there is no active connection.
-		 */
-		bool upload(TSTR lpszLocation, TSTR lpszRemFile);
-		bool download(TSTR lpszLocation, TSTR lpszRemName);
+        /// GET/PUSH METHODS ///
+        /** Uploads a file from client location to server location.
+         *      @lpszLocation   : Client relative file location
+         *      @lpszRemFile    : File name to be saved on server, leave blank for original name
+         *  Returns : @true on successful upload or @false on failed upload, could be
+         *              because file already exists on server or because there is no active connection.
+         */
+         /** Downloads a file from server location to client location.
+         *      @lpszLocation    : Server relative file loaction
+         *      @lpszRemName     : File name to be saved on client, leave blank for original name
+         *  Returns : @true on successful upload or @false on failed upload, could be
+         *              because file already exists on client or because there is no active connection.
+         */
+        bool Upload(TSTR lpszLocation, TSTR lpszRemFile);
+        bool Download(TSTR lpszLocation, TSTR lpszRemName);
 
-		/// DIRECTORY METHODS ///
-		/** bool cd(TSTR)
-		 *  Change Directory to either a fully qualified path or relative path.
-		 *      @lpszDirectory  : Directory on server to change to
-		 *  Returns : @true on succcessful change or @false if no directory exists or
-		 *              if there is no active connection.
-		 */
-		 /** bool mkdir(TSTR)
-		 *  Creates Directory for either a fully qualified path or relative path.
-		 *      @lpszDirectory  : Directory on server to create
-		 *  Returns : @true on succcessful directory creation or @false if create failed or
-		 *              if there is no active connection.
-		 */
-		 /** bool rmdir(TSTR)
-		 *  Removes Directory for either a fully qualified path or relative path.
-		 *      @lpszDirectory  : Directory on server to remove
-		 *  Returns : @true on succcessful removal or @false if directory doesn't exist or
-		 *              if there is no active connection.
-		 */
-		 /** TSTR getcd(void)
-		 *  Retrieves current directory path
-		 *
-		 *  Returns : currently pointed to server directory as a TSTR for unicode support
-		 */
-		bool cd(TSTR lpszDirectory);
-		bool mkdir(TSTR lpszDirectory);
-		bool rmdir(TSTR lpszDirectory);
-		TSTR getcd(void);
+        /// DIRECTORY METHODS ///
+        /** bool ChangeDir(TSTR)
+         *  Change Directory to either a fully qualified path or relative path.
+         *      @lpszDirectory  : Directory on server to change to
+         *  Returns : @true on succcessful change or @false if no directory exists or
+         *              if there is no active connection.
+         */
+        /** bool MakeDir(TSTR)
+         *  Creates Directory for either a fully qualified path or relative path.
+         *      @lpszDirectory  : Directory on server to create
+         *  Returns : @true on succcessful directory creation or @false if create failed or
+         *              if there is no active connection.
+         */
+        /** bool RemoveDir(TSTR)
+         *  Removes Directory for either a fully qualified path or relative path.
+         *      @lpszDirectory  : Directory on server to remove
+         *  Returns : @true on succcessful removal or @false if directory doesn't exist or
+         *              if there is no active connection.
+         */
+        /** TSTR CurrentDir(void)
+         *  Retrieves current directory path
+         *
+         *  Returns : currently pointed to server directory as a TSTR for unicode support
+         */
+        /** LIST SearchDir(TSTR)
+         *  Gets a directory listing based off a system valid search string.
+         *      @lpszSearchStr  : Search string thats system valid, e.g. *.txt, file.txt, *.* etc.
+         *  Returns a vector list of file names.
+         */
+        bool    ChangeDir(TSTR lpszDirectory);
+        bool    MakeDir(TSTR lpszDirectory);
+        bool    RemoveDir(TSTR lpszDirectory);
+        TSTR    CurrentDir(void);
+        LIST    SearchDir(TSTR lpszSearchStr);
 
         /// FILE HANDLING METHODS ///
-        /** bool remove(TSTR)
+        /** bool Remove(TSTR)
          *  Removes a file from FTP server.
          *      @lpszFileName   : Name of file to be deleted on server.
          *  Returns : @true of file was successfully removed or @false if no file exists or
          *              if there is no active connection.
          */
-         /** bool rename(TSTR, TSTR)
+        /** bool Rename(TSTR, TSTR)
          *  Renames a file on FTP server.
          *      @lpszFileName       : Name of file to be renamed on server.
          *      @lpszNewFileName    : Name for file to be renamed to on server.
          *  Returns : @true of file was successfully renamed or @false if no file exists or
          *              if there is no active connection.
          */
-         /** LONGLONG getfilesize(TSTR)
+        /** bool Exists(TSTR)
+         *  Checks whether a file exists on the host.
+         *      @filename   : Name of file to check existence of.
+         *  Returns : @true if file is present or @false if no file exists or
+         *              if there is no active connection.
+         */
+        /** LONGLONG GetFileSize(TSTR)
          *  File size of existing server file.
          *      @lpszFileName   : Name of file to retrieve size of on server.
          *  Returns : File size as a long long or @INVALID_FILE if file does not exist or
          *              if there is no active connection.
          */
-		bool     remove(TSTR lpszFileName);
-		bool     rename(TSTR lpszOldFileName, TSTR lpszNewFileName);
-		LONGLONG getfilesize(TSTR lpszFileName);
+        /** bool GetFileData(TSTR, WIN32_FIND_DATA&)
+         *  File size of existing server file.
+         *      @lpszFileName   : Name of file to retrieve size of on server.
+         *      @fileData       : Stores the resultant WIN32_FIND_DATA struct
+         *  Returns : @true of file was successfully renamed or @false if no file exists or
+         *              if there is no active connection.
+         */
+        bool        Remove(TSTR lpszFileName);
+        bool        Rename(TSTR lpszOldFileName, TSTR lpszNewFileName);
+        bool        Exists(TSTR lpszFilename);
+        LONGLONG    GetFileSize(TSTR lpszFileName);
+        bool        GetFileData(TSTR lpszFileName, WIN32_FIND_DATA& data);
+
 
         /// MISCELLANEOUS METHODS ///
-        /** HINTERNET gethandle(void)
+        /** HINTERNET GetHandle(void)
          *  Gets handle to an open FTP Session for cross-API use
          *
          *  Returns : HINTERNET handle to FTP Sessions or NULL if there is no connection
          *              NB: NULL is returned so that deallocated (bad handles) aren't returned.
          */
-         /** bool command(TSTR)
+        /** bool Command(TSTR)
          *  Executes a user defined FTP Command
          *
          *  Returns : @true if command was successfully exeucted or @false if not or
          *              if there is no active connection.
          */
-		HINTERNET   gethandle(void);
-		bool        command(TSTR lpszCommand);
+        HINTERNET   GetHandle(void);
+        bool        Command(TSTR lpszCommand);
 
-	private:
-		HINTERNET   m_hInternet;
-		HINTERNET   m_hFtpSession;
+        /** int GetLastError()
+         *  Retrieves the last error (return) value executed by the last method call.
+         *  If a method returned false then this method can be called for more detail.
+         *
+         *  Returns : 0x00 on successful last method call, or 0x01+ for a failed/info result.
+         *      NB: Refer to MSDN System Error Codes for information on return codes.
+         *      Ref: http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381(v=vs.85).aspx
+         */
+        int GetLastError(void);
+
+    private:
+        HINTERNET   m_hInternet;
+        HINTERNET   m_hFtpSession;
 };
+
+#endif
 
 #endif
